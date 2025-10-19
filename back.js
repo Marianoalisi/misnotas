@@ -50,56 +50,65 @@ function saveLocalNotes(data) {
 
 // === FUNCIONES DRIVE ===
 async function subirArchivoDrive(fileId, data) {
-  const tokenObj = gapi.auth.getToken();
-  if (!tokenObj || !tokenObj.access_token) {
-    console.error("No se pudo obtener el token de acceso de Google.");
-    return;
-  }
-  const accessToken = tokenObj.access_token;
-  const body = JSON.stringify(data);
+  try {
+    const tokenObj = gapi.auth.getToken();
+    if (!tokenObj || !tokenObj.access_token) {
+      console.warn("No se pudo obtener el token de acceso de Google.");
+      return;
+    }
+    const accessToken = tokenObj.access_token;
+    const body = JSON.stringify(data);
 
-  if (!fileId) {
-    // Crear nuevo archivo en Drive
-    const metadata = { name: "notes.json", mimeType: "application/json" };
-    const form = new FormData();
-    form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-    form.append("file", new Blob([body], { type: "application/json" }));
+    if (!fileId) {
+      // Crear nuevo archivo en Drive
+      const metadata = { name: "notes.json", mimeType: "application/json" };
+      const form = new FormData();
+      form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
+      form.append("file", new Blob([body], { type: "application/json" }));
 
-    const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
-      method: "POST",
-      headers: new Headers({ Authorization: "Bearer " + accessToken }),
-      body: form,
-    });
+      const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+        method: "POST",
+        headers: new Headers({ Authorization: "Bearer " + accessToken }),
+        body: form,
+      });
 
-    const info = await res.json();
-    if (info.id) localStorage.setItem("driveFileId", info.id);
-  } else {
-    // Actualizar archivo existente
-    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
-      method: "PATCH",
-      headers: { Authorization: "Bearer " + accessToken },
-      body,
-    });
+      const info = await res.json();
+      if (info.id) localStorage.setItem("driveFileId", info.id);
+    } else {
+      // Actualizar archivo existente
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+        method: "PATCH",
+        headers: { Authorization: "Bearer " + accessToken },
+        body,
+      });
+    }
+  } catch (err) {
+    console.error("Error en subirArchivoDrive:", err);
   }
 }
 
 async function descargarArchivoDrive() {
-  const fileId = localStorage.getItem("driveFileId");
-  if (!fileId) return null;
+  try {
+    const fileId = localStorage.getItem("driveFileId");
+    if (!fileId) return null;
 
-  const tokenObj = gapi.auth.getToken();
-  if (!tokenObj || !tokenObj.access_token) {
-    console.error("No se pudo obtener el token de acceso de Google.");
+    const tokenObj = gapi.auth.getToken();
+    if (!tokenObj || !tokenObj.access_token) {
+      console.warn("No se pudo obtener el token de acceso de Google.");
+      return null;
+    }
+    const accessToken = tokenObj.access_token;
+
+    const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+      headers: { Authorization: "Bearer " + accessToken },
+    });
+
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error("Error en descargarArchivoDrive:", err);
     return null;
   }
-  const accessToken = tokenObj.access_token;
-
-  const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-    headers: { Authorization: "Bearer " + accessToken },
-  });
-
-  if (!res.ok) return null;
-  return await res.json();
 }
 
 // === SINCRONIZACIÓN PRINCIPAL ===
