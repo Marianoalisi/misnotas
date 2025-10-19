@@ -1,0 +1,106 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #222;
+    font-family: Arial, Helvetica, sans-serif;
+    height: 100vh;              /* ocupar todo el alto de la pantalla */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Título */
+.nombre {
+    color: white;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-size: 2rem;
+    text-align: center;
+    margin: 10px 0;
+}
+
+/* Editor (TinyMCE container) */
+.text_area {
+    flex: 1;                    /* ocupa el espacio sobrante */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.tox {
+    width: 95vw !important;
+    max-width: 1200px;
+    height: 70vh;               /* editor ocupa 70% del alto */
+    border-radius: 8px;
+   
+}
+
+/* Botón */
+.boton_guardar {
+    text-align: center;
+    margin: 15px 0;
+}
+
+.boton_guardar button {
+    background-color: white;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-size: 1.1rem;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.boton_guardar button:hover {
+    background-color: #cce2fa;
+    color: white;
+}
+
+/*dfdfdsf*/
+#volver{
+    text-align: center;
+    margin: 15px 0;
+}
+
+#volver {
+    background-color: white;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-size: 1.1rem;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+}
+.volver a:hover {
+    background-color: #cce2fa;
+    color: white;
+}
+
+
+/* Quitar logo Tiny */
+.tox-statusbar__branding {
+    display: none !important;
+}
+.tox-promotion {
+     display: none !important;
+}
+
+
+/* 📱 Ajustes en móviles */
+@media (max-width: 768px) {
+    .titulo {
+        font-size: 1.5rem;
+    }
+
+    .tox {
+        width: 100vw !important;
+        height: 65vh; /* un poco menos en pantallas chicas */
+        border-radius: 0;
+    }
+
+    .boton_guardar button {
+        font-size: 1.2rem;
+        padding: 15px 30px;
+        width: 90%; /* ocupa más ancho en móvil */
+    }
+}
+

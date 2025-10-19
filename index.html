@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inicio</title>
+    <link rel="stylesheet" href="inicio.css" />
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Mis Notas</h1>
+      <section id="notas-container"></section>
+      <!-- 🔗 botón para crear nota nueva -->
+      <div>
+        <a href="interfaz.html" class="hoja">➕ Crear nueva nota</a>
+      </div>
+    </div>
+
+    <script src="back.js"></script>
+    <script>
+      // Esperar a que Google API esté lista
+      window.onload = async () => {
+        await initGoogleAPI();
+        const notas = await cargarNotas();
+        mostrarNotas(notas);
+      };
+
+      function mostrarNotas(notas) {
+        const container = document.getElementById("notas-container");
+        container.innerHTML = "";
+        for (let i = 1; i <= 12; i++) {
+          const nota = notas.find((n) => n.id === i);
+          const titulo = nota ? nota.titulo : "(vacío)";
+          container.innerHTML += `
+            <div class="nota-acceso" data-index="${i}">
+              <a href="interfaz.html?cargar=${i}" id="cargar_${i}">
+                <img src="bloc_icono.jpg" alt="Nota ${i}" />
+              </a>
+              <p id="titulo_${i}">${titulo}</p>
+            </div>
+          `;
+        }
+      }
+    </script>
+  </body>
+</html>

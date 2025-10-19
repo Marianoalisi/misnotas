@@ -1,0 +1,117 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #000000, #1a1a1a, #333333, #4d4d4d, #666666);
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: white;
+}
+.container {
+  text-align: center;
+}
+div{
+  text-align: center;
+}
+div img {
+  width: 50px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+section {
+  display: flex;
+  justify-content: center;
+  column-gap:  50px;
+}
+
+h1 {
+  font-size: clamp(1rem, 5vw, 3rem);
+  margin-bottom: 50px;
+}
+
+/* "Hoja" clickeable */
+ .hoja {
+  display: inline-block;
+  padding: 20px;
+  background-color: white;
+  color: #2a5298;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: 0.3s ease;
+  margin-top: 40px
+}
+
+/* Efecto hover */
+ .hoja:hover {
+  background-color: #f0f0f0;
+  transform: scale(1.05);
+} 
+.nota-acceso p {
+  margin: 0;      /* elimina margen predeterminado */
+  padding: 0;     /* elimina padding */
+  text-align: center;
+  font-size: 0.9rem;
+  color: white;
+}
+#titulo_1 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* letra más bonita */
+  font-weight:500; /* más grueso */
+  font-size: 1rem;
+  color: #ffdd57; /* color llamativo */
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7); /* sombra para resaltar */
+  border: 1px solid #ffdd57; /* marco alrededor */
+  padding: 4px 10px;
+  border-radius: 8px;
+  margin-top: 10px; /* separa del icono */
+}
+#titulo_2 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* letra más bonita */
+  font-weight:500; /* más grueso */
+  font-size: 1rem;
+  color: #ffdd57; /* color llamativo */
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7); /* sombra para resaltar */
+  border: 1px solid #ffdd57; /* marco alrededor */
+  padding: 4px 10px;
+  border-radius: 8px;
+  margin-top: 10px; /* separa del icono */
+}
+#titulo_3 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* letra más bonita */
+  font-weight:500; /* más grueso */
+  font-size: 1rem;
+  color: #ffdd57; /* color llamativo */
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.7); /* sombra para resaltar */
+  border: 1px solid #ffdd57; /* marco alrededor */
+  padding: 4px 10px;
+  border-radius: 8px;
+  margin-top: 10px; /* separa del icono */
+}
+
+/* 📱 Ajustes en móviles */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.5rem; /* título más chico en móvil */
+        margin-bottom: 15px;
+    }
+
+    section {
+        flex-direction: column; /* íconos uno debajo del otro */
+        row-gap: 15px;
+    }
+
+    div img {
+        width: 40px; /* íconos un poco más pequeños */
+    }
+
+    .hoja {
+        font-size: 1rem;
+        padding: 12px 20px;
+        width: 80%; /* botón más ancho en móvil */
+        margin: 0 auto; /* centrado */
+    }
+}
