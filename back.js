@@ -1,16 +1,34 @@
 // === CONFIGURACIÓN GOOGLE DRIVE ===
-const CLIENT_ID = "918822233973-jncnde1k79lhs4qllfhtutokuqua5ded.apps.googleusercontent.com"; // <-- cámbialo
-const API_KEY = "AIzaSyCVxpJ3TGmDJ5kKYzalkYdQOzIXcmLUgfg"; // <-- cámbialo
+const CLIENT_ID = "918822233973-jncnde1k79lhs4qllfhtutokuqua5ded.apps.googleusercontent.com"; // Tu client ID
+const API_KEY = "AIzaSyCVxpJ3TGmDJ5kKYzalkYdQOzIXcmLUgfg"; // Tu API key
 const SCOPES = "https://www.googleapis.com/auth/drive.file";
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
+// Inicializa la API de Google y maneja errores
 async function initGoogleAPI() {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     gapi.load("client:auth2", async () => {
-      await gapi.client.init({ apiKey: API_KEY, clientId: CLIENT_ID, discoveryDocs: DISCOVERY_DOCS, scope: SCOPES });
-      const auth = gapi.auth2.getAuthInstance();
-      if (!auth.isSignedIn.get()) await auth.signIn();
-      resolve();
+      try {
+        await gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES,
+        });
+
+        const auth = gapi.auth2.getAuthInstance();
+
+        // Intentar login solo si no está logueado
+        if (!auth.isSignedIn.get()) {
+          await auth.signIn();
+        }
+
+        resolve();
+      } catch (error) {
+        console.error("Error inicializando Google API:", error);
+        alert("No se pudo iniciar sesión con Google. Revisa la consola.");
+        reject(error);
+      }
     });
   });
 }
@@ -32,10 +50,16 @@ function saveLocalNotes(data) {
 
 // === FUNCIONES DRIVE ===
 async function subirArchivoDrive(fileId, data) {
-  const accessToken = gapi.auth.getToken().access_token;
+  const tokenObj = gapi.auth.getToken();
+  if (!tokenObj || !tokenObj.access_token) {
+    console.error("No se pudo obtener el token de acceso de Google.");
+    return;
+  }
+  const accessToken = tokenObj.access_token;
   const body = JSON.stringify(data);
 
   if (!fileId) {
+    // Crear nuevo archivo en Drive
     const metadata = { name: "notes.json", mimeType: "application/json" };
     const form = new FormData();
     form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
@@ -46,9 +70,11 @@ async function subirArchivoDrive(fileId, data) {
       headers: new Headers({ Authorization: "Bearer " + accessToken }),
       body: form,
     });
+
     const info = await res.json();
-    localStorage.setItem("driveFileId", info.id);
+    if (info.id) localStorage.setItem("driveFileId", info.id);
   } else {
+    // Actualizar archivo existente
     await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
       method: "PATCH",
       headers: { Authorization: "Bearer " + accessToken },
@@ -60,10 +86,19 @@ async function subirArchivoDrive(fileId, data) {
 async function descargarArchivoDrive() {
   const fileId = localStorage.getItem("driveFileId");
   if (!fileId) return null;
-  const accessToken = gapi.auth.getToken().access_token;
+
+  const tokenObj = gapi.auth.getToken();
+  if (!tokenObj || !tokenObj.access_token) {
+    console.error("No se pudo obtener el token de acceso de Google.");
+    return null;
+  }
+  const accessToken = tokenObj.access_token;
+
   const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
     headers: { Authorization: "Bearer " + accessToken },
   });
+
+  if (!res.ok) return null;
   return await res.json();
 }
 
@@ -72,12 +107,16 @@ async function cargarNotas() {
   let notes = getLocalNotes();
 
   if (navigator.onLine) {
-    const online = await descargarArchivoDrive();
-    if (online) {
-      notes = online;
-      saveLocalNotes(notes);
-    } else {
-      await subirArchivoDrive(null, notes); // crea en Drive si no existe
+    try {
+      const online = await descargarArchivoDrive();
+      if (online) {
+        notes = online;
+        saveLocalNotes(notes);
+      } else {
+        await subirArchivoDrive(null, notes);
+      }
+    } catch (err) {
+      console.warn("No se pudo sincronizar con Drive:", err);
     }
   }
 
@@ -95,24 +134,38 @@ async function guardarNotaDrive(id, titulo, contenido) {
   saveLocalNotes(data);
 
   if (navigator.onLine) {
-    const fileId = localStorage.getItem("driveFileId");
-    await subirArchivoDrive(fileId, data);
+    try {
+      const fileId = localStorage.getItem("driveFileId");
+      await subirArchivoDrive(fileId, data);
+      alert("Nota guardada ✅");
+    } catch (err) {
+      console.error("Error guardando en Drive:", err);
+      alert("No se pudo guardar la nota en Drive.");
+    }
+  } else {
+    alert("Nota guardada localmente (sin conexión) ✅");
   }
-
-  alert("Nota guardada ✅");
 }
 
 async function eliminarNota(id) {
   const data = getLocalNotes();
   data.notas = data.notas.filter((n) => n.id !== id);
   saveLocalNotes(data);
+
   if (navigator.onLine) {
-    await subirArchivoDrive(localStorage.getItem("driveFileId"), data);
+    try {
+      await subirArchivoDrive(localStorage.getItem("driveFileId"), data);
+      alert("Nota eliminada 🗑️");
+    } catch (err) {
+      console.error("Error eliminando en Drive:", err);
+      alert("No se pudo eliminar la nota en Drive.");
+    }
+  } else {
+    alert("Nota eliminada localmente (sin conexión) 🗑️");
   }
-  alert("Nota eliminada 🗑️");
 }
 
-// === INICIALIZAR EDITOR (si existe) ===
+// === INICIALIZAR EDITOR ===
 const numeroNota = getQueryParam("cargar");
 let tituloActual = "";
 
@@ -124,12 +177,16 @@ if (document.getElementById("mi_editor")) {
     toolbar: "undo redo | bold italic underline | bullist numlist | link | emoticons",
     setup: function (editor) {
       editor.on("init", async function () {
-        await initGoogleAPI();
-        const notas = await cargarNotas();
-        const nota = notas.find((n) => n.id === numeroNota);
-        if (nota) {
-          editor.setContent(nota.contenido);
-          tituloActual = nota.titulo;
+        try {
+          await initGoogleAPI();
+          const notas = await cargarNotas();
+          const nota = notas.find((n) => n.id === numeroNota);
+          if (nota) {
+            editor.setContent(nota.contenido);
+            tituloActual = nota.titulo;
+          }
+        } catch (err) {
+          console.error("Error inicializando editor o cargando notas:", err);
         }
       });
     },
