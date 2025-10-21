@@ -38,6 +38,11 @@ async function initGoogleAPI() {
     });
   });
 }
+// === UTILIDADES LOCALES ===
+function getQueryParam(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
 
 function getLocalNotes() {
   const saved = localStorage.getItem("notes");
@@ -239,6 +244,7 @@ if (document.getElementById("mi_editor")) {
     }
   });
 }
+
 
 
 
