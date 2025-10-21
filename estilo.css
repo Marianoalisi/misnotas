@@ -19,19 +19,25 @@ body {
 
 /* Editor (TinyMCE container) */
 .text_area {
-    flex: 1;                    /* ocupa el espacio sobrante */
+    flex: 1;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: stretch; /* mejor para ocupar todo el espacio */
     padding: 10px;
 }
 
 .tox {
     width: 95vw !important;
     max-width: 1200px;
-    height: 70vh;               /* editor ocupa 70% del alto */
+    height: 70vh;
     border-radius: 8px;
-   
+}
+
+/* Asegura que el contenido interno del editor respete el alto */
+.tox .tox-edit-area iframe {
+    height: 100% !important;
+    min-height: 70vh !important;
+    border-radius: 8px;
 }
 
 /* Botón */
@@ -103,9 +109,5 @@ body {
         width: 90%; /* ocupa más ancho en móvil */
     }
 }
-.tox-editor-container iframe,
-.tox-edit-area iframe {
-  min-height: 65vh !important;
-  border-radius: 8px;
-}
+
 
