@@ -5,38 +5,38 @@ const SCOPES = "https://www.googleapis.com/auth/drive.file";
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
 // Inicializa la API de Google y maneja errores
+// === NUEVA INICIALIZACIÓN GOOGLE API ===
 async function initGoogleAPI() {
   return new Promise((resolve, reject) => {
-    gapi.load("client:auth2", async () => {
+    gapi.load("client", async () => {
       try {
         await gapi.client.init({
           apiKey: API_KEY,
-          clientId: CLIENT_ID,
           discoveryDocs: DISCOVERY_DOCS,
-          scope: SCOPES,
         });
 
-        const auth = gapi.auth2.getAuthInstance();
+        const tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: (tokenResponse) => {
+            if (tokenResponse && tokenResponse.access_token) {
+              gapi.client.setToken({ access_token: tokenResponse.access_token });
+              resolve();
+            } else {
+              reject("No se obtuvo token de acceso.");
+            }
+          },
+        });
 
-        // Intentar login solo si no está logueado
-        if (!auth.isSignedIn.get()) {
-          await auth.signIn();
-        }
-
-        resolve();
+        // Lanzar el prompt de autorización
+        tokenClient.requestAccessToken({ prompt: "consent" });
       } catch (error) {
         console.error("Error inicializando Google API:", error);
-        alert("No se pudo iniciar sesión con Google. Revisa la consola.");
+        alert("No se pudo iniciar sesión con Google.");
         reject(error);
       }
     });
   });
-}
-
-// === UTILIDADES LOCALES ===
-function getQueryParam(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return parseInt(urlParams.get(param));
 }
 
 function getLocalNotes() {
@@ -214,3 +214,4 @@ if (document.getElementById("mi_editor")) {
     }
   });
 }
+
