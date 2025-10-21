@@ -70,7 +70,7 @@ body {
     cursor: pointer;
     display: inline-block;
 }
-.volver a:hover {
+#volver:hover {
     background-color: #cce2fa;
     color: white;
 }
@@ -102,5 +102,10 @@ body {
         padding: 15px 30px;
         width: 90%; /* ocupa más ancho en móvil */
     }
+}
+.tox-editor-container iframe,
+.tox-edit-area iframe {
+  min-height: 65vh !important;
+  border-radius: 8px;
 }
 
