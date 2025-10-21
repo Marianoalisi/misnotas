@@ -1,11 +1,25 @@
+// === UTILIDADES LOCALES ===
+function getQueryParam(param) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(param);
+}
+
+function getLocalNotes() {
+  const saved = localStorage.getItem("notes");
+  return saved ? JSON.parse(saved) : { notas: [] };
+}
+
+function saveLocalNotes(data) {
+  localStorage.setItem("notes", JSON.stringify(data));
+}
+
 // === CONFIGURACIÓN GOOGLE DRIVE ===
-const CLIENT_ID = "918822233973-jncnde1k79lhs4qllfhtutokuqua5ded.apps.googleusercontent.com"; // Tu client ID
-const API_KEY = "AIzaSyCVxpJ3TGmDJ5kKYzalkYdQOzIXcmLUgfg"; // Tu API key
+const CLIENT_ID = "918822233973-jncnde1k79lhs4qllfhtutokuqua5ded.apps.googleusercontent.com";
+const API_KEY = "AIzaSyCVxpJ3TGmDJ5kKYzalkYdQOzIXcmLUgfg";
 const SCOPES = "https://www.googleapis.com/auth/drive.file";
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
-// Inicializa la API de Google y maneja errores
-// === NUEVA INICIALIZACIÓN GOOGLE API ===
+// === INICIALIZACIÓN GOOGLE API ===
 async function initGoogleAPI() {
   return new Promise((resolve, reject) => {
     gapi.load("client", async () => {
@@ -28,7 +42,7 @@ async function initGoogleAPI() {
           },
         });
 
-        // Lanzar el prompt de autorización
+        // Mostrar prompt de autorización
         tokenClient.requestAccessToken({ prompt: "consent" });
       } catch (error) {
         console.error("Error inicializando Google API:", error);
@@ -37,20 +51,6 @@ async function initGoogleAPI() {
       }
     });
   });
-}
-// === UTILIDADES LOCALES ===
-function getQueryParam(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
-}
-
-function getLocalNotes() {
-  const saved = localStorage.getItem("notes");
-  return saved ? JSON.parse(saved) : { notas: [] };
-}
-
-function saveLocalNotes(data) {
-  localStorage.setItem("notes", JSON.stringify(data));
 }
 
 // === FUNCIONES DRIVE ===
@@ -65,7 +65,7 @@ async function subirArchivoDrive(fileId, data) {
     const body = JSON.stringify(data);
 
     if (!fileId) {
-      // Crear nuevo archivo en Drive
+      // Crear nuevo archivo
       const metadata = { name: "notes.json", mimeType: "application/json" };
       const form = new FormData();
       form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
@@ -81,7 +81,7 @@ async function subirArchivoDrive(fileId, data) {
       if (info.id) localStorage.setItem("driveFileId", info.id);
     } else {
       // Actualizar archivo existente
-      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+      await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?uploadType=media`, {
         method: "PATCH",
         headers: { Authorization: "Bearer " + accessToken },
         body,
@@ -180,7 +180,7 @@ async function eliminarNota(id) {
 }
 
 // === INICIALIZAR EDITOR ===
-const numeroNota = getQueryParam("cargar");
+const numeroNota = getQueryParam("cargar") || Date.now().toString(); // ID existente o nuevo
 let tituloActual = "";
 
 if (document.getElementById("mi_editor")) {
@@ -188,16 +188,11 @@ if (document.getElementById("mi_editor")) {
     selector: "#mi_editor",
     plugins: "lists link emoticons advlist",
     toolbar_mode: "floating",
-    toolbar:
-      "undo redo | bold italic underline | bullist numlist | link | emoticons | fullscreen",
+    toolbar: "undo redo | bold italic underline | bullist numlist | link | emoticons | fullscreen",
     height: "100%",
     menubar: false,
-
-    /* === 🌙 MODO OSCURO === */
     skin: "oxide-dark",
     content_css: "dark",
-
-    /* === 💅 ESTILO INTERNO DEL CONTENIDO === */
     content_style: `
       body {
         background-color: #1e1e1e;
@@ -211,7 +206,6 @@ if (document.getElementById("mi_editor")) {
       h1, h2, h3, h4 { color: #f5f5f5; }
       ul, ol { padding-left: 20px; }
     `,
-
     setup: function (editor) {
       editor.on("init", async function () {
         try {
@@ -229,14 +223,14 @@ if (document.getElementById("mi_editor")) {
     },
   });
 
-  /* === BOTÓN GUARDAR === */
+  // === BOTÓN GUARDAR ===
   document.getElementById("guardar").addEventListener("click", async () => {
     const contenido = tinymce.get("mi_editor").getContent().trim();
     const titulo = prompt("Ingrese un título:", tituloActual) || "Sin título";
     await guardarNotaDrive(numeroNota, titulo, contenido);
   });
 
-  /* === BOTÓN ELIMINAR === */
+  // === BOTÓN ELIMINAR ===
   document.getElementById("eliminar").addEventListener("click", async () => {
     if (confirm("¿Seguro que deseas eliminar esta nota?")) {
       await eliminarNota(numeroNota);
@@ -244,7 +238,3 @@ if (document.getElementById("mi_editor")) {
     }
   });
 }
-
-
-
-
