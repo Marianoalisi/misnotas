@@ -1,114 +1,108 @@
+/* === ESTRUCTURA GENERAL === */
 body {
     margin: 0;
     padding: 0;
     background-color: #222;
     font-family: Arial, Helvetica, sans-serif;
-    height: 100vh;              /* ocupar todo el alto de la pantalla */
+    height: 100vh;                /* ocupa toda la altura visible */
     display: flex;
     flex-direction: column;
 }
 
-/* Título */
+/* === TÍTULO === */
 .nombre {
     color: white;
     font-family: "Comic Sans MS", cursive, sans-serif;
     font-size: 2rem;
     text-align: center;
-    margin: 10px 0;
+    padding: 10px 0;
+    flex-shrink: 0;               /* evita que se reduzca el tamaño */
+    background: #111;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
 }
 
-/* Editor (TinyMCE container) */
+/* === CONTENEDOR DEL EDITOR === */
 .text_area {
-    flex: 1;
+    flex: 1;                      /* ocupa todo el espacio restante */
     display: flex;
     justify-content: center;
-    align-items: stretch; /* mejor para ocupar todo el espacio */
+    align-items: stretch;         /* llena el alto disponible */
     padding: 10px;
+    box-sizing: border-box;
 }
 
+/* TinyMCE */
 .tox {
-    width: 95vw !important;
-    max-width: 1200px;
-    height: 70vh;
-    border-radius: 8px;
+    width: 100% !important;
+    height: 100% !important;      /* ocupa todo el alto restante */
+    border-radius: 0;
+    max-width: none;
 }
 
-/* Asegura que el contenido interno del editor respete el alto */
+/* Asegura que el contenido interno también use toda la altura */
 .tox .tox-edit-area iframe {
     height: 100% !important;
-    min-height: 70vh !important;
-    border-radius: 8px;
+    min-height: 100% !important;
+    border-radius: 0;
 }
 
-/* Botón */
+/* === BOTONES === */
 .boton_guardar {
+    flex-shrink: 0;
     text-align: center;
-    margin: 15px 0;
+    background: #111;
+    padding: 10px 0 15px 0;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.4);
 }
 
-.boton_guardar button {
+.boton_guardar button,
+#volver {
     background-color: white;
     font-family: "Comic Sans MS", cursive, sans-serif;
     font-size: 1.1rem;
     padding: 12px 24px;
     border-radius: 8px;
     cursor: pointer;
+    border: none;
+    margin: 0 8px;
     display: inline-block;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.boton_guardar button:hover {
-    background-color: #cce2fa;
-    color: white;
-}
-
-/*dfdfdsf*/
-#volver{
-    text-align: center;
-    margin: 15px 0;
-}
-
-/* #volver {
-    background-color: white;
-    font-family: "Comic Sans MS", cursive, sans-serif;
-    font-size: 1.1rem;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: inline-block;
-}
+.boton_guardar button:hover,
 #volver:hover {
     background-color: #cce2fa;
     color: white;
-} */
+}
 
-
-/* Quitar logo Tiny */
-.tox-statusbar__branding {
+/* === QUITAR LOGOS DE TINYMCE === */
+.tox-statusbar__branding,
+.tox-promotion {
     display: none !important;
 }
-.tox-promotion {
-     display: none !important;
-}
 
-
-/* 📱 Ajustes en móviles */
+/* === MODO MÓVIL === */
 @media (max-width: 768px) {
-    .titulo {
+    .nombre {
         font-size: 1.5rem;
+        padding: 8px 0;
     }
 
     .tox {
         width: 100vw !important;
-        height: 65vh; /* un poco menos en pantallas chicas */
+        height: 100% !important;
         border-radius: 0;
     }
 
-    .boton_guardar button {
+    .boton_guardar {
+        padding: 8px 0 12px 0;
+    }
+
+    .boton_guardar button,
+    #volver {
+        width: 90%;
         font-size: 1.2rem;
-        padding: 15px 30px;
-        width: 90%; /* ocupa más ancho en móvil */
+        padding: 14px;
+        margin: 6px 0;
     }
 }
-
-
-
