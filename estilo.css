@@ -67,7 +67,7 @@ body {
     margin: 15px 0;
 }
 
-#volver {
+/* #volver {
     background-color: white;
     font-family: "Comic Sans MS", cursive, sans-serif;
     font-size: 1.1rem;
@@ -79,7 +79,7 @@ body {
 #volver:hover {
     background-color: #cce2fa;
     color: white;
-}
+} */
 
 
 /* Quitar logo Tiny */
@@ -109,5 +109,6 @@ body {
         width: 90%; /* ocupa más ancho en móvil */
     }
 }
+
 
 
