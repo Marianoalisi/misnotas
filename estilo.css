@@ -4,7 +4,7 @@ body {
     padding: 0;
     background-color: #222;
     font-family: Arial, Helvetica, sans-serif;
-    height: 100vh;                /* ocupa toda la altura visible */
+    height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -16,34 +16,36 @@ body {
     font-size: 2rem;
     text-align: center;
     padding: 10px 0;
-    flex-shrink: 0;               /* evita que se reduzca el tamaño */
+    flex-shrink: 0;
     background: #111;
     box-shadow: 0 2px 5px rgba(0,0,0,0.4);
 }
 
 /* === CONTENEDOR DEL EDITOR === */
 .text_area {
-    flex: 1;                      /* ocupa todo el espacio restante */
+    flex: 1;
     display: flex;
     justify-content: center;
-    align-items: stretch;         /* llena el alto disponible */
-    padding: 10px;
+    align-items: center;
+    padding: 15px;
     box-sizing: border-box;
 }
 
-/* TinyMCE */
+/* TinyMCE principal */
 .tox {
-    width: 100% !important;
-    height: 100% !important;      /* ocupa todo el alto restante */
-    border-radius: 0;
-    max-width: none;
+    width: 85vw !important;      /* 👈 ancho tipo bloc de notas */
+    max-width: 1100px;           /* límite para pantallas grandes */
+    height: 80vh !important;     /* 👈 alto moderado */
+    border-radius: 10px;
+    background: white;
+    overflow: hidden;
 }
 
-/* Asegura que el contenido interno también use toda la altura */
+/* Asegura que el contenido interno use todo el alto */
 .tox .tox-edit-area iframe {
+    width: 100% !important;
     height: 100% !important;
-    min-height: 100% !important;
-    border-radius: 0;
+    border-radius: 0 0 10px 10px;
 }
 
 /* === BOTONES === */
@@ -89,9 +91,9 @@ body {
     }
 
     .tox {
-        width: 100vw !important;
-        height: 100% !important;
-        border-radius: 0;
+        width: 95vw !important;
+        height: 70vh !important;
+        border-radius: 6px;
     }
 
     .boton_guardar {
