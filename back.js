@@ -183,7 +183,30 @@ if (document.getElementById("mi_editor")) {
     selector: "#mi_editor",
     plugins: "lists link emoticons advlist",
     toolbar_mode: "floating",
-    toolbar: "undo redo | bold italic underline | bullist numlist | link | emoticons",
+    toolbar:
+      "undo redo | bold italic underline | bullist numlist | link | emoticons | fullscreen",
+    height: "100%",
+    menubar: false,
+
+    /* === 🌙 MODO OSCURO === */
+    skin: "oxide-dark",
+    content_css: "dark",
+
+    /* === 💅 ESTILO INTERNO DEL CONTENIDO === */
+    content_style: `
+      body {
+        background-color: #1e1e1e;
+        color: #f5f5f5;
+        font-family: "Comic Sans MS", sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        padding: 10px;
+      }
+      a { color: #82b1ff; }
+      h1, h2, h3, h4 { color: #f5f5f5; }
+      ul, ol { padding-left: 20px; }
+    `,
+
     setup: function (editor) {
       editor.on("init", async function () {
         try {
@@ -201,12 +224,14 @@ if (document.getElementById("mi_editor")) {
     },
   });
 
+  /* === BOTÓN GUARDAR === */
   document.getElementById("guardar").addEventListener("click", async () => {
     const contenido = tinymce.get("mi_editor").getContent().trim();
     const titulo = prompt("Ingrese un título:", tituloActual) || "Sin título";
     await guardarNotaDrive(numeroNota, titulo, contenido);
   });
 
+  /* === BOTÓN ELIMINAR === */
   document.getElementById("eliminar").addEventListener("click", async () => {
     if (confirm("¿Seguro que deseas eliminar esta nota?")) {
       await eliminarNota(numeroNota);
@@ -214,4 +239,6 @@ if (document.getElementById("mi_editor")) {
     }
   });
 }
+
+
 
