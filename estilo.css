@@ -33,15 +33,15 @@ body {
 
 /* TinyMCE principal */
 .tox {
-    width: 85vw !important;      /* 👈 ancho tipo bloc de notas */
-    max-width: 1100px;           /* límite para pantallas grandes */
-    height: 80vh !important;     /* 👈 alto moderado */
+    width: 85vw !important;
+    max-width: 1100px;
+    height: 80vh !important;
     border-radius: 10px;
-    background: white;
+    background: #2c2c2c !important;
     overflow: hidden;
 }
 
-/* Asegura que el contenido interno use todo el alto */
+/* Contenido interno */
 .tox .tox-edit-area iframe {
     width: 100% !important;
     height: 100% !important;
