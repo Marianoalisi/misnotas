@@ -33,7 +33,9 @@ async function guardarNota(id, titulo, contenido) {
 
 async function eliminarNota(id) {
   const data = getLocalNotes();
-  data.notas = data.notas.filter((n) => n.id !== id);
+  const idStr = String(id); // 🔒 aseguramos tipo string
+
+  data.notas = data.notas.filter((n) => String(n.id) !== idStr);
   saveLocalNotes(data);
   alert("Nota eliminada 🗑️");
 }
@@ -92,3 +94,4 @@ if (document.getElementById("mi_editor")) {
     }
   });
 }
+
