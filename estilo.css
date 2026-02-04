@@ -1,110 +1,152 @@
-/* === ESTRUCTURA GENERAL === */
+/* =====================
+   BASE
+===================== */
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     padding: 0;
-    background-color: #222;
-    font-family: Arial, Helvetica, sans-serif;
-    height: 100vh;
+    min-height: 100vh;
+
+    font-family: Roboto, Arial, Helvetica, sans-serif;
+    background-color: #f8f9fa;
+    color: #202124;
+
     display: flex;
     flex-direction: column;
 }
 
-/* === TÍTULO === */
+/* =====================
+   TÍTULO
+===================== */
 .nombre {
-    color: white;
-    font-family: "Comic Sans MS", cursive, sans-serif;
-    font-size: 2rem;
+    background: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+
     text-align: center;
-    padding: 10px 0;
-    flex-shrink: 0;
-    background: #111;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    padding: 14px 0;
+
+    font-size: 1.4rem;
+    font-weight: 500;
 }
 
-/* === CONTENEDOR DEL EDITOR === */
+/* =====================
+   EDITOR
+===================== */
 .text_area {
     flex: 1;
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 15px;
-    box-sizing: border-box;
+    align-items: stretch;
+    padding: 16px;
 }
 
-/* TinyMCE principal */
 .tox {
-    width: 85vw !important;
-    max-width: 1100px;
-    height: 80vh !important;
-    border-radius: 10px;
-    background: #2c2c2c !important;
-    overflow: hidden;
-}
-
-/* Contenido interno */
-.tox .tox-edit-area iframe {
     width: 100% !important;
-    height: 100% !important;
-    border-radius: 0 0 10px 10px;
+    max-width: 1100px;
+    height: 100%;
+
+    border-radius: 8px !important;
+    border: 1px solid #dadce0;
+
+    box-shadow: 0 1px 3px rgba(60, 64, 67, 0.15);
 }
 
-/* === BOTONES === */
+/* Toolbar */
+.tox .tox-toolbar,
+.tox .tox-toolbar__primary {
+    background-color: #ffffff !important;
+    border-bottom: 1px solid #dadce0;
+}
+
+/* Área de escritura */
+.tox-edit-area iframe {
+    background-color: #ffffff !important;
+}
+
+/* =====================
+   BOTONES
+===================== */
 .boton_guardar {
-    flex-shrink: 0;
-    text-align: center;
-    background: #111;
-    padding: 10px 0 15px 0;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #ffffff;
+    border-top: 1px solid #e0e0e0;
 }
 
 .boton_guardar button,
 #volver {
-    background-color: white;
-    font-family: "Comic Sans MS", cursive, sans-serif;
-    font-size: 1.1rem;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
+    background-color: #1a73e8;
+    color: #ffffff;
+
     border: none;
-    margin: 0 8px;
-    display: inline-block;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    border-radius: 4px;
+
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+
+    cursor: pointer;
+    text-decoration: none;
+
+    transition: background-color 0.2s ease;
 }
 
+/* Hover */
 .boton_guardar button:hover,
 #volver:hover {
-    background-color: #cce2fa;
-    color: white;
+    background-color: #1558b0;
 }
 
-/* === QUITAR LOGOS DE TINYMCE === */
+/* Micrófono */
+#microfono {
+    background-color: #ffffff;
+    color: #1a73e8;
+    border: 1px solid #dadce0;
+}
+
+#microfono:hover {
+    background-color: #f1f3f4;
+}
+
+/* Grabando */
+#microfono.grabando {
+    background-color: #ea4335;
+    color: #ffffff;
+    border-color: #ea4335;
+}
+
+/* =====================
+   Quitar branding Tiny
+===================== */
 .tox-statusbar__branding,
 .tox-promotion {
     display: none !important;
 }
 
-/* === MODO MÓVIL === */
+/* =====================
+   MOBILE
+===================== */
 @media (max-width: 768px) {
     .nombre {
-        font-size: 1.5rem;
-        padding: 8px 0;
+        font-size: 1.2rem;
     }
 
-    .tox {
-        width: 95vw !important;
-        height: 70vh !important;
-        border-radius: 6px;
+    .text_area {
+        padding: 8px;
     }
 
     .boton_guardar {
-        padding: 8px 0 12px 0;
+        flex-direction: column;
     }
 
     .boton_guardar button,
     #volver {
-        width: 90%;
-        font-size: 1.2rem;
-        padding: 14px;
-        margin: 6px 0;
+        width: 100%;
+        font-size: 1rem;
     }
 }
