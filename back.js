@@ -1,7 +1,10 @@
-// === UTILIDADES LOCALES ===
+// ================================
+// UTILIDADES
+// ================================
 function getQueryParam(param) {
   const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
+  const value = parseInt(urlParams.get(param));
+  return isNaN(value) ? null : value;
 }
 
 function getLocalNotes() {
@@ -13,85 +16,172 @@ function saveLocalNotes(data) {
   localStorage.setItem("notes", JSON.stringify(data));
 }
 
-// === FUNCIONES PRINCIPALES ===
-async function cargarNotas() {
-  const notes = getLocalNotes();
-  return notes.notas;
+// ================================
+// NOTAS (LOCAL)
+// ================================
+function cargarNotas() {
+  return getLocalNotes().notas;
 }
 
-async function guardarNota(id, titulo, contenido) {
+function guardarNota(id, titulo, contenido) {
   const data = getLocalNotes();
-  const existente = data.notas.find((n) => n.id === id);
-  const nueva = { id, titulo, contenido, fecha: new Date().toISOString() };
 
-  if (existente) Object.assign(existente, nueva);
-  else data.notas.push(nueva);
+  if (id == null) {
+    id = Date.now();
+  }
+
+  const existente = data.notas.find(n => n.id === id);
+
+  const nota = {
+    id,
+    titulo,
+    contenido,
+    fecha: new Date().toISOString()
+  };
+
+  if (existente) {
+    Object.assign(existente, nota);
+  } else {
+    data.notas.push(nota);
+  }
 
   saveLocalNotes(data);
-  alert("Nota guardada ✅");
+  return id;
 }
 
-async function eliminarNota(id) {
-  const data = getLocalNotes();
-  const idStr = String(id); // 🔒 aseguramos tipo string
+function eliminarNota(id) {
+  if (!id) return;
 
-  data.notas = data.notas.filter((n) => String(n.id) !== idStr);
+  const data = getLocalNotes();
+  data.notas = data.notas.filter(n => n.id !== id);
   saveLocalNotes(data);
+
   alert("Nota eliminada 🗑️");
+  location.href = "index.html";
 }
 
-// === INICIALIZAR EDITOR ===
-const numeroNota = getQueryParam("cargar") || Date.now().toString(); // ID existente o nuevo
+// ================================
+// INICIALIZAR EDITOR
+// ================================
+let numeroNota = getQueryParam("cargar");
 let tituloActual = "";
 
 if (document.getElementById("mi_editor")) {
+
+  // si es nota nueva → crear ID y fijarlo en la URL
+  if (!numeroNota) {
+    numeroNota = Date.now();
+    history.replaceState(null, "", `interfaz.html?cargar=${numeroNota}`);
+  }
+
   tinymce.init({
     selector: "#mi_editor",
     plugins: "lists link emoticons advlist",
     toolbar_mode: "floating",
-    toolbar: "undo redo | bold italic underline | bullist numlist | link | emoticons | fullscreen",
-    height: "100%",
-    menubar: false,
-    skin: "oxide-dark",
-    content_css: "dark",
-    content_style: `
-      body {
-        background-color: #1e1e1e;
-        color: #f5f5f5;
-        font-family: "Comic Sans MS", sans-serif;
-        font-size: 16px;
-        line-height: 1.6;
-        padding: 10px;
-      }
-      a { color: #82b1ff; }
-      h1, h2, h3, h4 { color: #f5f5f5; }
-      ul, ol { padding-left: 20px; }
-    `,
-    setup: function (editor) {
-      editor.on("init", async function () {
-        const notas = await cargarNotas();
-        const nota = notas.find((n) => n.id === numeroNota);
+    toolbar: "undo redo | bold italic underline | bullist numlist | link | emoticons",
+    setup(editor) {
+      editor.on("init", () => {
+        const nota = cargarNotas().find(n => n.id === numeroNota);
         if (nota) {
           editor.setContent(nota.contenido);
-          tituloActual = nota.titulo;
+          tituloActual = nota.titulo || "";
         }
       });
-    },
+    }
   });
 
-  // === BOTÓN GUARDAR ===
-  document.getElementById("guardar").addEventListener("click", async () => {
+  document.getElementById("guardar").addEventListener("click", () => {
     const contenido = tinymce.get("mi_editor").getContent().trim();
-    const titulo = prompt("Ingrese un título:", tituloActual) || "Sin título";
-    await guardarNota(numeroNota, titulo, contenido);
+
+    const titulo = prompt(
+      "Ingrese un título:",
+      tituloActual || "Sin título"
+    );
+
+    if (titulo === null) return;
+
+    tituloActual = titulo;
+    guardarNota(numeroNota, tituloActual, contenido);
+
+    alert("Nota guardada ✅");
   });
 
-  // === BOTÓN ELIMINAR ===
-  document.getElementById("eliminar").addEventListener("click", async () => {
+  document.getElementById("eliminar")?.addEventListener("click", () => {
     if (confirm("¿Seguro que deseas eliminar esta nota?")) {
-      await eliminarNota(numeroNota);
-      location.href = "index.html";
+      eliminarNota(numeroNota);
     }
   });
 }
 
+// ================================
+// MICRÓFONO Y TRANSCRIPCIÓN
+// ================================
+let recognition;
+let grabando = false;
+let ultimoResultado = Date.now();
+const PAUSA_MS = 3000;
+
+function initMicrofono() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("Tu navegador no soporta reconocimiento de voz 😕");
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "es-AR";
+  recognition.continuous = true;
+  recognition.interimResults = true;
+
+  recognition.onresult = function (event) {
+    let textoFinal = "";
+
+    const ahora = Date.now();
+    const huboPausa = ahora - ultimoResultado > PAUSA_MS;
+    ultimoResultado = ahora;
+
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        textoFinal += event.results[i][0].transcript + " ";
+      }
+    }
+
+    if (textoFinal) {
+      const editor = tinymce.get("mi_editor");
+
+      if (huboPausa) {
+        editor.execCommand(
+          "mceInsertContent",
+          false,
+          "<p><strong>— Intervención —</strong></p>"
+        );
+      }
+
+      editor.execCommand("mceInsertContent", false, textoFinal);
+    }
+  };
+
+  recognition.onend = () => {
+    if (grabando) recognition.start();
+  };
+}
+
+document.getElementById("microfono")?.addEventListener("click", () => {
+  if (!recognition) initMicrofono();
+
+  const btn = document.getElementById("microfono");
+
+  if (!grabando) {
+    recognition.start();
+    grabando = true;
+    btn.innerText = "⏹ Detener";
+    btn.classList.add("grabando");
+  } else {
+    recognition.stop();
+    grabando = false;
+    btn.innerText = "🎤 Grabar";
+    btn.classList.remove("grabando");
+  }
+});
