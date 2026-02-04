@@ -5,37 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Inicio</title>
     <link rel="stylesheet" href="inicio.css" />
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <div class="container">
       <h1>Mis Notas</h1>
       <section id="notas-container"></section>
+      <!-- 🔗 botón para crear nota nueva -->
       <div>
         <a href="interfaz.html" class="hoja">➕ Crear nueva nota</a>
       </div>
     </div>
 
-    <script src="back.js"></script>
-    <script>
-      window.onload = async () => {
-        const notas = await cargarNotas();
-        mostrarNotas(notas);
-      };
+<script src="back.js"></script>
+<script>
+  window.onload = () => {
+    const data = JSON.parse(localStorage.getItem("notes") || '{"notas":[]}');
+    mostrarNotas(data.notas);
+  };
 
-      function mostrarNotas(notas) {
-        const container = document.getElementById("notas-container");
-        container.innerHTML = "";
-        notas.forEach((nota) => {
-          container.innerHTML += `
-            <div class="nota-acceso">
-              <a href="interfaz.html?cargar=${nota.id}">
-                <img src="bloc_icono.jpg" alt="Nota" />
-              </a>
-              <p>${nota.titulo}</p>
-            </div>
-          `;
-        });
-      }
-    </script>
+  function mostrarNotas(notas) {
+    const container = document.getElementById("notas-container");
+    container.innerHTML = "";
+
+    if (notas.length === 0) {
+      container.innerHTML = "<p>No hay notas todavía</p>";
+      return;
+    }
+
+    notas.forEach((nota) => {
+      const div = document.createElement("div");
+      div.className = "nota-acceso";
+
+      div.innerHTML = `
+        <a href="interfaz.html?cargar=${nota.id}">
+          <img src="bloc_icono.jpg" alt="Nota" />
+        </a>
+        <p>${nota.titulo || "Sin título"}</p>
+      `;
+
+      container.appendChild(div);
+    });
+  }
+</script>
+
   </body>
 </html>
