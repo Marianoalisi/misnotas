@@ -1,12 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Editor de notas</title>
     <link rel="stylesheet" href="estilo.css" />
-    <link rel="icon" href="favicon.ico" type="image/x-icon" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.7.0/tinymce.min.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <div class="nombre"><h3>Bloc de notas</h3></div>
@@ -15,6 +16,7 @@
     <div class="boton_guardar">
       <button id="guardar">Guardar</button>
       <button id="eliminar">Eliminar</button>
+      <button id="microfono">🎤 Grabar</button>
       <a id="volver" href="index.html">⬅ Volver</a>
     </div>
 
