@@ -68,7 +68,6 @@ let tituloActual = "";
 
 if (document.getElementById("mi_editor")) {
 
-  // si es nota nueva → crear ID y fijarlo en la URL
   if (!numeroNota) {
     numeroNota = Date.now();
     history.replaceState(null, "", `interfaz.html?cargar=${numeroNota}`);
@@ -91,7 +90,7 @@ if (document.getElementById("mi_editor")) {
   });
 
   document.getElementById("guardar").addEventListener("click", () => {
-    const contenido = tinymce.get("mi_editor").getContent().trim();
+    const contenido = tinymce.get("mi_editor")?.getContent().trim() || "";
 
     const titulo = prompt(
       "Ingrese un título:",
@@ -116,7 +115,7 @@ if (document.getElementById("mi_editor")) {
 // ================================
 // MICRÓFONO Y TRANSCRIPCIÓN
 // ================================
-let recognition;
+let recognition = null;
 let grabando = false;
 let ultimoResultado = Date.now();
 const PAUSA_MS = 3000;
@@ -132,8 +131,10 @@ function initMicrofono() {
 
   recognition = new SpeechRecognition();
   recognition.lang = "es-AR";
-  recognition.continuous = true;
-  recognition.interimResults = true;
+
+  // 🔴 CONFIGURACIÓN CLAVE PARA MÓVIL
+  recognition.continuous = false;
+  recognition.interimResults = false;
 
   recognition.onresult = function (event) {
     let textoFinal = "";
@@ -148,39 +149,60 @@ function initMicrofono() {
       }
     }
 
-    if (textoFinal) {
-      const editor = tinymce.get("mi_editor");
+    if (!textoFinal) return;
 
-      if (huboPausa) {
-        editor.execCommand(
-          "mceInsertContent",
-          false,
-          "<p><strong>— Intervención —</strong></p>"
-        );
-      }
+    const editor = tinymce.get("mi_editor");
+    if (!editor) return;
 
-      editor.execCommand("mceInsertContent", false, textoFinal);
+    if (huboPausa) {
+      editor.execCommand(
+        "mceInsertContent",
+        false,
+        "<p><strong>— Intervención —</strong></p>"
+      );
     }
+
+    editor.execCommand("mceInsertContent", false, textoFinal);
+  };
+
+  recognition.onerror = function (event) {
+    console.log("Error reconocimiento:", event.error);
   };
 
   recognition.onend = () => {
-    if (grabando) recognition.start();
+    if (grabando) {
+      setTimeout(() => {
+        try {
+          recognition.start();
+        } catch (e) {
+          console.log("No se pudo reiniciar reconocimiento");
+        }
+      }, 500);
+    }
   };
 }
 
+// ================================
+// BOTÓN MICRÓFONO
+// ================================
 document.getElementById("microfono")?.addEventListener("click", () => {
   if (!recognition) initMicrofono();
+  if (!recognition) return;
 
   const btn = document.getElementById("microfono");
 
   if (!grabando) {
-    recognition.start();
-    grabando = true;
-    btn.innerText = "⏹ Detener";
-    btn.classList.add("grabando");
+    try {
+      recognition.start();
+      grabando = true;
+      btn.innerText = "⏹ Detener";
+      btn.classList.add("grabando");
+    } catch (e) {
+      console.log("No se pudo iniciar micrófono");
+    }
   } else {
-    recognition.stop();
     grabando = false;
+    recognition.stop();
     btn.innerText = "🎤 Grabar";
     btn.classList.remove("grabando");
   }
