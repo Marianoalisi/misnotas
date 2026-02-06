@@ -177,7 +177,7 @@ function initMicrofono() {
         } catch (e) {
           console.log("No se pudo reiniciar reconocimiento");
         }
-      }, 500);
+      }, 100);
     }
   };
 }
@@ -207,3 +207,4 @@ document.getElementById("microfono")?.addEventListener("click", () => {
     btn.classList.remove("grabando");
   }
 });
+
